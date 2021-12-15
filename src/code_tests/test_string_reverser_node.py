@@ -21,7 +21,7 @@ def roscore():
 
 
 @pytest.fixture(scope="module")
-def running_string_reverser_node():
+def running_string_reverser_node(ros_params):
     try:
         file_path = Path(__file__).parent.parent/"string_reverser_node.py"
         process = subprocess.Popen(["python" , str(file_path)])
@@ -42,8 +42,12 @@ def string_publisher(forward_string):
 
 
 @pytest.fixture()
-def string_reverser(): 
+def string_reverser(roscore,ros_params): 
     return StringReverserNode()
+
+@pytest.fixture(scope="module")
+def ros_params(roscore): 
+    rospy.set_param("important_parameter",42)
 
 
 @pytest.mark.parametrize("forward_string, backward_string",
@@ -62,8 +66,8 @@ def test_reverse_string_msg(forward_string, backward_string, string_reverser):
     ("abc","cba"),
     ("12 3","3 21"),
 ])
-def test_string_reverser_node( backward_string, roscore, string_publisher, running_string_reverser_node):
-    backward_string_msg = rospy.wait_for_message("/backward_string",String)
+def test_string_reverser_node( backward_string, string_publisher, running_string_reverser_node):
+    backward_string_msg = rospy.wait_for_message("/backward_string",String,timeout=1.0)
     assert backward_string_msg.data == backward_string, "String not reversed"
   
     

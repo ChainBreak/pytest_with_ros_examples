@@ -13,6 +13,8 @@ class StringReverserNode():
 
     def __init__(self):
 
+        self.important_parameter = rospy.get_param("important_parameter")
+
         self.string_subscriber = rospy.Subscriber("/forward_string", String, callback=self.forward_string_callback, queue_size=10)
 
         self.string_publisher = rospy.Publisher("/backward_string", String, queue_size=10)
