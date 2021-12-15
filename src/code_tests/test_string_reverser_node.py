@@ -3,6 +3,7 @@ import rospy
 import rosgraph
 import subprocess
 import time
+from pathlib import Path
 from ..string_reverser_node import StringReverserNode
 
 from std_msgs.msg import String
@@ -11,12 +12,33 @@ from std_msgs.msg import String
 @pytest.fixture(scope="module")
 def roscore():
     try:
-        roscore_process = subprocess.Popen("roscore")
+        process = subprocess.Popen("roscore")
         rospy.init_node("test")
         yield
     finally:
-        roscore_process.terminate()
-        roscore_process.wait()
+        process.terminate()
+        process.wait()
+
+
+@pytest.fixture(scope="module")
+def running_string_reverser_node():
+    try:
+        file_path = Path(__file__).parent.parent/"string_reverser_node.py"
+        process = subprocess.Popen(["python" , str(file_path)])
+        yield
+    finally:
+        process.terminate()
+        process.wait()
+
+
+@pytest.fixture()
+def string_publisher(forward_string):
+    try:
+        process = subprocess.Popen(["rostopic", "pub", "-r", "10", "/forward_string", "std_msgs/String", forward_string])
+        yield
+    finally:
+        process.terminate()
+        process.wait()
 
 
 @pytest.fixture()
@@ -24,42 +46,25 @@ def string_reverser():
     return StringReverserNode()
 
 
-@pytest.fixture()
-def string_publisher(): 
-    return rospy.Publisher("/forward_string",String,queue_size=10)
-
-
-@pytest.mark.parametrize("forward, backward",
+@pytest.mark.parametrize("forward_string, backward_string",
 [
     ("abc","cba"),
     ("12 3","3 21"),
 ])
-def test_reverse_string(forward, backward, string_reverser):
-    assert string_reverser.reverse_string(forward) == backward, "String not reversed"
-
-
-@pytest.mark.parametrize("forward, backward",
-[
-    ("abc","cba"),
-    ("12 3","3 21"),
-])
-def test_reverse_string_msg(forward, backward, string_reverser):
-    forward_string_msg = String(forward)
+def test_reverse_string_msg(forward_string, backward_string, string_reverser):
+    forward_string_msg = String(forward_string)
     backward_string_msg = string_reverser.reverse_string_msg(forward_string_msg)
-    assert backward_string_msg.data == backward, "String not reversed"
+    assert backward_string_msg.data == backward_string, "String not reversed"
 
 
-# @pytest.mark.parametrize("forward, backward",
-# [
-#     ("abc","cba"),
-#     ("12 3","3 21"),
-# ])
-# def test_string_reverser_node(forward, backward, roscore, string_publisher, string_reverser):
-
+@pytest.mark.parametrize("forward_string, backward_string",
+[
+    ("abc","cba"),
+    ("12 3","3 21"),
+])
+def test_string_reverser_node( backward_string, roscore, string_publisher, running_string_reverser_node):
+    backward_string_msg = rospy.wait_for_message("/backward_string",String)
+    assert backward_string_msg.data == backward_string, "String not reversed"
   
-#     string_publisher.publish(String(forward))
-#     rospy.spin()
-
-#     backward_string_msg = rospy.wait_for_message("/backward_string",String)
-#     assert backward_string_msg.data == backward, "String not reversed"
+    
 
