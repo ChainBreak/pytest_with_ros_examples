@@ -1,7 +1,7 @@
 # Examples of Using PyTest with ROS
-This repo gives some examples of how to use pytest with a ROS.
+This repo gives some examples of how to use pytest with a ROS project.
 
-ROS nodes can be harder to test becuase they need roscore, publishers, global parameters and services all available for it to work.
+ROS nodes can be hard to test becuase they may need roscore, publishers, global parameters, tf graphs and services all available for it to work.
 
 # Why Test
 
