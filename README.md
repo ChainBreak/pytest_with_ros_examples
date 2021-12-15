@@ -21,13 +21,13 @@ When you write testable code, it will naturally be more modular. Complicated thi
 ``` pytest -s ```
 
 # Test a specific module
-``` pytest src/code_tests/test_string_reverser_node.py ```
+``` pytest src/code_tests/test_string_reverser.py ```
 
 # Run a specific test in a specific module
-``` pytest src/code_tests/test_string_reverser_node.py::test_reverse_string_msg ```
+``` pytest src/code_tests/test_string_reverser.py::test_string_reverser_logic ```
 
 # Test a module that matches a key
-``` pytest -k test_string_reverser_node.py ```
+``` pytest -k test_string_reverser.py ```
 
 # Run a test in a module that matches a query keys
-``` pytest -k test_string_reverser_node.py -k test_reverse_string_msg ```
+``` pytest -k test_string_reverser.py -k test_string_reverser_logic ```

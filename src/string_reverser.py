@@ -5,11 +5,11 @@ from std_msgs.msg import String
 def main():
     rospy.init_node("string_reverser_node")
 
-    string_reverser = StringReverserNode()
+    string_reverser = StringReverser()
 
     rospy.spin()
 
-class StringReverserNode():
+class StringReverser():
 
     def __init__(self):
 
